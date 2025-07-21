@@ -17,3 +17,11 @@ class UserMasterSerializer(serializers.ModelSerializer):
         # Hash the password during creation
         validated_data['password'] = make_password(validated_data['password'])
         return super().create(validated_data)
+
+
+class MeSerializer(serializers.ModelSerializer):
+    role = serializers.CharField(source='user_type.role_name', read_only=True)  # user_type is FK
+
+    class Meta:
+        model = UserMaster
+        fields = ['id', 'email', 'first_name', 'last_name', 'mobile_number', 'role']

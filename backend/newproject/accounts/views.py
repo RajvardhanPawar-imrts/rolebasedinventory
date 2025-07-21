@@ -7,8 +7,15 @@ from roles.models import RoleMaster
 from accounts.models import UserMaster
 from usermodules.models import UserRoleModulePermission
 
-from accounts.serializers import UserMasterSerializer
+from accounts.serializers import UserMasterSerializer, MeSerializer
 from usermodules.serializers import UserRoleModulePermissionSerializer
+
+
+from rest_framework.permissions import IsAuthenticated
+from .premissions import IsAdminRole
+
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 
 # ✅ Admin Register View
@@ -62,6 +69,7 @@ class AdminRegisterView(APIView):
 
 # ✅ Add Generic User View
 class AddUserView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminRole]
     def post(self, request):
         data = request.data.copy()
 
@@ -96,3 +104,40 @@ class AddUserView(APIView):
             }, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#Custom JWT Token Transformation
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    username_field = 'email'
+    def validate(self, attrs):
+        # change 'username' to 'email'
+        attrs['username'] = attrs.get('email')
+        return super().validate(attrs)
+
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        # Add role_id or any other info to the payload:
+        token['role_id'] = getattr(user, 'user_type_id', None)
+        return token
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+
+#Get particular user data
+class MeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        role_id = user.user_type_id
+
+        # Get allowed modules from your permissions table
+        module_permissions = UserRoleModulePermission.objects.filter(
+            user_role_module_id=role_id
+        ).values_list('module_permission', flat=True).first() or []
+
+        serializer = MeSerializer(user)
+        return Response({
+            **serializer.data,
+            "modules": module_permissions,
+        })

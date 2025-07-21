@@ -6,7 +6,11 @@ from roles.models import RoleMaster
 from .models import UserRoleModulePermission
 from .serializers import UserRoleModulePermissionSerializer
 
+from rest_framework.permissions import IsAuthenticated
+from accounts.premissions import IsAdminRole
+
 class RolePermissionView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminRole]
     def post(self, request, role_id):
         try:
             role = RoleMaster.objects.get(pk=role_id)

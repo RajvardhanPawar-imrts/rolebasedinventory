@@ -1,9 +1,7 @@
 import Dashboard from "../Pages/Dashboard";
 import Homepage from "../Pages/Homepage";
 import Login from "../Pages/Login";
-import POS from "../Pages/POS";
 import Register from "../Pages/Register";
-import Reports from "../Pages/Reports";
 import Roles from "../Pages/Roles";
 import Sales from "../Pages/Sales";
 import { all_routes } from "./allroutes";
@@ -11,9 +9,25 @@ import { all_routes } from "./allroutes";
 export const websiteRoutes = [
   {
     id: "1",
-    name: "Dashboard",
-    link: all_routes.dashboard,
-    element: <Dashboard />,
+    name: "Sales",
+    link: all_routes.sales,
+    element: <Sales />,
+  },
+
+  {
+    id: "2",
+    name: "Roles Page",
+    link: all_routes.roles,
+    element: <Roles />,
+  },
+];
+
+export const entryRoutes = [
+  {
+    id: "1",
+    name: "Register",
+    link: all_routes.register,
+    element: <Register />,
   },
   {
     id: "2",
@@ -21,40 +35,13 @@ export const websiteRoutes = [
     link: all_routes.login,
     element: <Login />,
   },
+];
+
+export const dashboardRoute = [
   {
-    id: "3",
-    name: "Register",
-    link: all_routes.register,
-    element: <Register />,
-  },
-  {
-    id: "4",
-    name: "Sales",
-    link: all_routes.sales,
-    element: <Sales />,
-  },
-  {
-    id: "5",
-    name: "Reports",
-    link: all_routes.reports,
-    element: <Reports />,
-  },
-  {
-    id: "6",
-    name: "POS",
-    link: all_routes.pos,
-    element: <POS />,
-  },
-  {
-    id: "7",
-    name: "Homepage",
-    link: all_routes.home,
-    element: <Homepage />,
-  },
-  {
-    id: "8",
-    name: "Roles Page",
-    link: all_routes.roles,
-    element: <Roles />,
+    id: "1",
+    name: "Dashboard",
+    link: all_routes.dashboard,
+    element: <Dashboard />,
   },
 ];
