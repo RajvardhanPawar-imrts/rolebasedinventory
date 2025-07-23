@@ -20,8 +20,9 @@ class UserMasterSerializer(serializers.ModelSerializer):
 
 
 class MeSerializer(serializers.ModelSerializer):
-    role = serializers.CharField(source='user_type.role_name', read_only=True)  # user_type is FK
+    role = serializers.CharField(source='user_type.role_name', read_only=True)
+    role_id = serializers.CharField(source='user_type.role_id', read_only=True)  # user_type is FK
 
     class Meta:
         model = UserMaster
-        fields = ['id', 'email', 'first_name', 'last_name', 'mobile_number', 'role']
+        fields = ['id', 'first_name', 'last_name', 'role','role_id']

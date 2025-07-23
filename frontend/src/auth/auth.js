@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 // 🍪 Set both tokens (on login)
 export const setTokens = ({ access, refresh }) => {
   Cookies.set("access", access, { expires: 1 });
-  Cookies.set("refresh", refresh, { expires: 7 });
+  Cookies.set("refresh", refresh, { expires: 1 });
 };
 
 export const setAccessToken = (access) => {

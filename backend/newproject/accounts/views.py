@@ -126,18 +126,9 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 #Get particular user data
 class MeView(APIView):
     permission_classes = [IsAuthenticated]
-
     def get(self, request):
         user = request.user
-        role_id = user.user_type_id
-
-        # Get allowed modules from your permissions table
-        module_permissions = UserRoleModulePermission.objects.filter(
-            user_role_module_id=role_id
-        ).values_list('module_permission', flat=True).first() or []
-
         serializer = MeSerializer(user)
         return Response({
             **serializer.data,
-            "modules": module_permissions,
         })

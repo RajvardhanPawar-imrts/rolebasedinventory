@@ -10,8 +10,14 @@ from rest_framework.permissions import IsAuthenticated
 from accounts.premissions import IsAdminRole
 
 class RolePermissionView(APIView):
-    permission_classes = [IsAuthenticated, IsAdminRole]
+
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [IsAuthenticated(), IsAdminRole()]
+        return [IsAuthenticated()]
+
     def post(self, request, role_id):
+        # permission_classes = [IsAuthenticated, IsAdminRole]
         try:
             role = RoleMaster.objects.get(pk=role_id)
         except RoleMaster.DoesNotExist:
@@ -44,3 +50,22 @@ class RolePermissionView(APIView):
                 "data": serializer.data
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+    def get(self, request, role_id):
+        try:
+            role = RoleMaster.objects.get(pk=role_id)
+        except RoleMaster.DoesNotExist:
+            return Response({"error": "Role not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        permissions = UserRoleModulePermission.objects.filter(user_role_module_id=role)
+        module_list = []
+        for per in permissions:
+            module_list.extend(per.module_permission)
+        module_list = list(set(module_list))
+
+        return Response({
+            "role": role.role_name,
+            "modules": module_list
+        }, status=status.HTTP_200_OK)
+
