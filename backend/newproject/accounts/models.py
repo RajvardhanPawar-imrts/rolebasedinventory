@@ -2,6 +2,9 @@ from django.db import models
 from roles.models import RoleMaster
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 
+def default_user_image_path():
+    return 'user_images/default.png'
+
 class UserMasterManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -28,6 +31,18 @@ class UserMaster(AbstractBaseUser,PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     last_login = models.DateTimeField(null=True, blank=True)
+    #addressfields
+    country = models.CharField(max_length=100, null=True, blank=True)
+    state = models.CharField(max_length=100, null=True, blank=True)
+    city = models.CharField(max_length=100, null=True, blank=True)
+    postal_code = models.CharField(max_length=20, null=True, blank=True)
+    #profile image
+    user_image = models.ImageField(
+        upload_to='user_images/',
+        default=default_user_image_path,
+        null=True,
+        blank=True
+    )
 
     objects = UserMasterManager()
 

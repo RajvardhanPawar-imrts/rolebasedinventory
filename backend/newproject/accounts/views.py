@@ -16,6 +16,7 @@ from .premissions import IsAdminRole
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+from django.shortcuts import get_object_or_404
 
 
 # ✅ Admin Register View
@@ -66,7 +67,6 @@ class AdminRegisterView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
 # ✅ Add Generic User View
 class AddUserView(APIView):
     permission_classes = [IsAuthenticated, IsAdminRole]
@@ -105,6 +105,7 @@ class AddUserView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 #Custom JWT Token Transformation
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     username_field = 'email'
@@ -123,7 +124,37 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
-#Get particular user data
+#GET ALL USERS DATA
+class AllUsersView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        users = UserMaster.objects.all()
+        serializer = UserMasterSerializer(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+#UPDATE USER DATA
+class UpdateUserView(APIView):
+    permission_classes = [IsAuthenticated]
+    def put(self, request, user_id):
+        user = get_object_or_404(UserMaster, pk=user_id)
+        serializer = UserMasterSerializer(user, data=request.data, partial=True, context={'request': request})
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#GET SINGLE USER DATA
+class SingleUserData(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request, user_id):
+        try:
+            user = UserMaster.objects.get(pk=user_id)
+        except UserMaster.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        serializer = UserMasterSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+#Get particular user data for redux storing in frontend
 class MeView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
