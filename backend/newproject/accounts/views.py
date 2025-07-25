@@ -105,7 +105,6 @@ class AddUserView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 #Custom JWT Token Transformation
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     username_field = 'email'
@@ -136,12 +135,20 @@ class AllUsersView(APIView):
 class UpdateUserView(APIView):
     permission_classes = [IsAuthenticated]
     def put(self, request, user_id):
-        user = get_object_or_404(UserMaster, pk=user_id)
-        serializer = UserMasterSerializer(user, data=request.data, partial=True, context={'request': request})
-        if serializer.is_valid():
-            user = serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user = request.user
+            requesteduser = get_object_or_404(UserMaster, pk=user_id)
+            if user == requesteduser or user.user_type_id == 1:
+                serializer = UserMasterSerializer(requesteduser, data=request.data, partial=True, context={'request': request})
+                if serializer.is_valid():
+                    user = serializer.save()
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+                else:
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            else: 
+                return Response({"error": "You don't have permission to edit this user."}, status=status.HTTP_403_FORBIDDEN)   
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)       
 
 #GET SINGLE USER DATA
 class SingleUserData(APIView):

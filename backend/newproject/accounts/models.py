@@ -43,7 +43,11 @@ class UserMaster(AbstractBaseUser,PermissionsMixin):
         null=True,
         blank=True
     )
-
+    def save(self, *args, **kwargs):
+        if self.email:
+            self.email = self.email.lower()  # store email in lowercase
+        super().save(*args, **kwargs)
+    
     objects = UserMasterManager()
 
     USERNAME_FIELD = 'email'
